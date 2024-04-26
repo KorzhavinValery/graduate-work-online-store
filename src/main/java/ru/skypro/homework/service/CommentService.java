@@ -19,7 +19,7 @@ public interface CommentService {
      * @param comment = текст комментария
      * @return = CommentDto
      */
-    CommentDto postComment(int adId, CreateOrUpdateCommentDto comment);
+    CommentDto postComment(int adId, CreateOrUpdateCommentDto comment, String userName);
 
     /**
      * Удалить комментарий
