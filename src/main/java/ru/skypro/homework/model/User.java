@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import ru.skypro.homework.dto.Role;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "Users")
@@ -24,4 +23,5 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
     private String image;
+    private String password;
 }

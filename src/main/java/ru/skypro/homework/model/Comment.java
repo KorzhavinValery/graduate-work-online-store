@@ -18,5 +18,7 @@ public class Comment {
     private User user;
     private LocalDateTime createdAt;
     private String text;
+    @ManyToOne
+    private Ad ad;
 
 }
