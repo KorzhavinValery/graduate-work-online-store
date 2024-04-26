@@ -8,11 +8,13 @@ import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
 import ru.skypro.homework.model.Comment;
 import ru.skypro.homework.repository.CommentRepository;
 import ru.skypro.homework.service.CommentService;
+import ru.skypro.homework.service.map.CommentMap;
 
 @Service
 @AllArgsConstructor
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
+    private CommentMap commentMap;
 
     /**
      * Получение комментариев объявления
@@ -57,6 +59,7 @@ public class CommentServiceImpl implements CommentService {
     public CommentDto patchComment(int id, CreateOrUpdateCommentDto commentDto) {
         Comment comment = commentRepository.findById(id).orElseThrow();
         comment.setText(commentDto.getText());
-        return null;
+        commentRepository.save(comment);
+        return commentMap.mapCommentDto(comment);
     }
 }

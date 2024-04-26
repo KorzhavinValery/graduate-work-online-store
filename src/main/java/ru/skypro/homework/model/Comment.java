@@ -4,7 +4,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Comments")
@@ -16,7 +15,7 @@ public class Comment {
     private int id;
     @ManyToOne
     private User user;
-    private LocalDateTime createdAt;
+    private long createdAt;
     private String text;
     @ManyToOne
     private Ad ad;
