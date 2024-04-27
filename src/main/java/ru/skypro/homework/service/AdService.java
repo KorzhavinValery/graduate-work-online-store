@@ -4,6 +4,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
 import ru.skypro.homework.dto.AdExtendedDto;
 import ru.skypro.homework.dto.AdsDto;
+import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 
 public interface AdService {
     /**
@@ -14,9 +15,12 @@ public interface AdService {
 
     /**
      * Добавляем новое объявление
-     * @return = возвращает AdDto
+     * @param userName = имя авторизированного пользователя
+     * @param createOrUpdateAdDto = экземпляр CreateOrUpdateAdDto
+     * @param pathImage = путь к файлу с изображением
+     * @return = экземпляр AdDto
      */
-    AdDto addAd();
+    AdDto addAd(String userName, CreateOrUpdateAdDto createOrUpdateAdDto, String pathImage);
 
     /**
      * Получаем объявление по id
@@ -36,19 +40,19 @@ public interface AdService {
      * @param id = id объявления
      * @return = AdDto
      */
-    AdDto updateAd(int id);
+    AdDto updateAd(int id, CreateOrUpdateAdDto createOrUpdateAdDto);
 
     /**
      * Получение объявлений авторизованного пользователя
-     * @param userId = id авторизованного пользователя
+     * @param userName = имя авторизованного пользователя
      * @return = получаем лист объявлений авторизованного пользователя
      */
-    AdsDto getMyAds(int userId);
+    AdsDto getMyAds(String userName);
 
     /**
      * Обновление картинки объявления
      * @param id = id объявления
-     * @param image = file картинки
+     * @param pathImage = путь к file картинки
      */
-    void patchImage(int id, MultipartFile image);
+    void patchImage(int id, String pathImage);
 }
