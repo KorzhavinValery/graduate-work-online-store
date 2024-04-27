@@ -14,22 +14,23 @@ public interface UserService {
 
     /**
      * Получение информации об авторизованном пользователе
-     * @param id = id авторизованного пользователя
+     * @param userName = имя авторизованного пользователя
      * @return = UserDto
      */
-    UserDto getInfoAboutAuthUser(int id);
+    UserDto getInfoAboutAuthUser(String userName);
 
     /**
      * Обновление информации об авторизованном пользователе
-     * @param id = id авторизованного пользователя
+     * @param userName = имя авторизованного пользователя
      * @param updateUserDto
      * @return
      */
-    UpdateUserDto setInfoAboutAuthUser(int id, UpdateUserDto updateUserDto);
+    UpdateUserDto setInfoAboutAuthUser(String userName, UpdateUserDto updateUserDto);
 
     /**
-     * Обновление информации об авторизованном пользователе
-     * @param image = файл картинки
+     * Обновление аватара авторизованного пользователя
+     * @param userName = имя авторизованного пользователя
+     * @param pathImage = путь к файлу картинки
      */
-    void setAvatar(MultipartFile image);
+    void setAvatar(String userName, String pathImage);
 }
