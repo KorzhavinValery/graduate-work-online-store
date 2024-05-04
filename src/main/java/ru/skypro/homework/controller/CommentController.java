@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
@@ -24,20 +25,27 @@ public class CommentController {
         return ResponseEntity.ok(commentService.getComments(adId));
     }
     @PostMapping("/{id}/comments")
-    public ResponseEntity<CommentDto> postComment(@PathVariable Integer adId, @RequestBody CreateOrUpdateCommentDto comment, HttpServletRequest request) {
-        Principal principal = request.getUserPrincipal();
-        return ResponseEntity.ok(commentService.postComment(adId, comment, principal.getName()));
+    public ResponseEntity<CommentDto> postComment(@PathVariable Integer adId, @RequestBody CreateOrUpdateCommentDto comment,
+                                                  Principal principal) {
+        String currentUserName = principal.getName();
+        return ResponseEntity.ok(commentService.postComment(adId, comment, currentUserName));
     }
 
     @DeleteMapping("/{adId}/comments/{commentId}")
-    public ResponseEntity<?> deleteComment(@PathVariable Integer adId, @PathVariable Integer commentId) {
+    @PreAuthorize("hasRole('ADMIN') or @CheckRoleService.getUsernameByComment(#commentId) == principal.username")
+    public ResponseEntity<?> deleteComment(@PathVariable Integer adId,
+                                           @PathVariable Integer commentId) {
         commentService.deleteComment(commentId);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PatchMapping("/{adId}/comments/{commentId}")
-    public ResponseEntity<CommentDto> patchComment(@PathVariable Integer adId, @PathVariable Integer commentId, @RequestBody CreateOrUpdateCommentDto commentDto) {
-        return ResponseEntity.ok(commentService.patchComment(commentId, commentDto));
+    @PreAuthorize("hasRole('ADMIN') or @CheckRoleService.getUsernameByComment(#commentId) == principal.username")
+    public ResponseEntity<CommentDto> patchComment(@PathVariable Integer adId,
+                                                   @PathVariable Integer commentId,
+                                                   @RequestBody CreateOrUpdateCommentDto commentDto,
+                                                   Principal principal) {
+        return ResponseEntity.ok(commentService.patchComment(adId, commentId, commentDto, principal.getName()));
     }
 
 }

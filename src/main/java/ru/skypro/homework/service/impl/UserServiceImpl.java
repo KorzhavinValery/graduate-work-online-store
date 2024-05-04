@@ -6,59 +6,86 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPasswordDto;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
+import ru.skypro.homework.exceptions.PasswordsNotEqualsException;
+import ru.skypro.homework.exceptions.UserNotFoundException;
 import ru.skypro.homework.model.User;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.UserService;
 import ru.skypro.homework.service.map.UserMap;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.io.IOException;
+import java.security.Principal;
 
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private UserMap userMap;
+    private final PasswordEncoder encoder;
     /**
      * Изменить пароль
      *
      * @param newPasswordDto = старый пароль + новый пароль
      */
     @Override
-    public void setPassword(NewPasswordDto newPasswordDto) {
+    public void setPassword(NewPasswordDto newPasswordDto, Principal principal) {
+        String username = principal.getName();
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(username));
+        if (!encoder.matches(newPasswordDto.getCurrentPassword(), user.getPassword())) {
+            throw new PasswordsNotEqualsException();
+        }
+        user.setPassword(encoder.encode(newPasswordDto.getNewPassword()));
+        userRepository.save(user);
+
     }
 
     /**
      * Получение информации об авторизованном пользователе
      *
-     * @param userName = имя авторизованного пользователя
+     * @param principal = интерфейс для получения username пользователя
      * @return = UserDto
      */
     @Override
-    public UserDto getInfoAboutAuthUser(String userName) {
-        return userMap.mapUserDto(userRepository.findByName(userName));
+    public UserDto getInfoAboutAuthUser(Principal principal) {
+        String userName = principal.getName();
+        User user = userRepository.findByUsername(userName).orElseThrow(() -> new UserNotFoundException(userName));
+        return userMap.mapUserDto(user);
+
     }
 
     /**
      * Обновление информации об авторизованном пользователе
      *
-     * @param userName = имя авторизованного пользователя
+     * @param principal = интерфейс для получения username пользователя
      * @param updateUserDto
      * @return
      */
     @Override
-    public UpdateUserDto setInfoAboutAuthUser(String userName, UpdateUserDto updateUserDto) {
-        User user = userRepository.findByName(userName);
+    public UpdateUserDto setInfoAboutAuthUser(Principal principal, UpdateUserDto updateUserDto) {
+        String userName = principal.getName();
+        User user = userRepository.findByUsername(userName).orElseThrow(() -> new UserNotFoundException(userName));;
         userMap.updateUser(user, updateUserDto);
         return userMap.mapUpdateUserDto(userRepository.save(user));
     }
 
     /**
      * Обновление аватара авторизованного пользователя
-     * @param userName = имя авторизованного пользователя
-     * @param pathImage = путь к файлу картинки
+     * @param principal = интерфейс для получения username пользователя
+     * @param image = путь к файлу картинки
+     * @throws UserNotFoundException выбрасывается, если пользователь не найден в таблице user.
+     * @throws IOException выбрасывается, если возникают проблемы при получении картинки.
      */
     @Override
-    public void setAvatar(String userName, String pathImage) {
-        User user = userRepository.findByName(userName);
-        user.setImage(pathImage);
+    public void setAvatar(MultipartFile image, Principal principal) {
+        String userName = principal.getName();
+        User user = userRepository.findByUsername(userName).orElseThrow(() -> new UserNotFoundException(userName));
+        try {
+            user.setImage(image.getBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
         userRepository.save(user);
     }
 }

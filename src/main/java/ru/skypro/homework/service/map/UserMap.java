@@ -1,5 +1,6 @@
 package ru.skypro.homework.service.map;
 
+import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.model.User;
@@ -13,7 +14,7 @@ public class UserMap {
         userDto.setLastName(user.getLastName());
         userDto.setPhone(user.getPhone());
         userDto.setRole(user.getRole());
-        userDto.setImage(user.getImage());
+        userDto.setImage("/users/me/image");
         return userDto;
     }
 
@@ -30,4 +31,16 @@ public class UserMap {
         updateUserDto.setPhone(user.getPhone());
         return updateUserDto;
     }
+
+    public User registerToUser(Register register) {
+        User user = new User();
+        user.setUsername(register.getUsername());
+        user.setPassword(register.getPassword());
+        user.setFirstName(register.getFirstName());
+        user.setLastName(register.getLastName());
+        user.setPhone(register.getPhone());
+        user.setRole(register.getRole());
+        return user;
+    }
+
 }

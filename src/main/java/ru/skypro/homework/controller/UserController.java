@@ -20,26 +20,25 @@ import java.security.Principal;
 public class UserController {
     private UserServiceImpl userService;
     @PostMapping("set_password")
-    public ResponseEntity<?> setPassword(@RequestBody NewPasswordDto newPassword) {
+    public ResponseEntity<?> setPassword(@RequestBody NewPasswordDto newPassword, Principal principal) {
+        userService.setPassword(newPassword, principal);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/me")
-    public ResponseEntity<UserDto> getInfoAboutAuthUser(HttpServletRequest request) {
-        Principal principal = request.getUserPrincipal();
-        return ResponseEntity.ok(userService.getInfoAboutAuthUser(principal.getName()));
+    public ResponseEntity<UserDto> getInfoAboutAuthUser(Principal principal) {
+        return ResponseEntity.ok(userService.getInfoAboutAuthUser(principal));
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<UpdateUserDto> setInfoAboutAuthUser(@RequestBody UpdateUserDto updateUserDto, HttpServletRequest request) {
-        Principal principal = request.getUserPrincipal();
-        return ResponseEntity.ok(userService.setInfoAboutAuthUser(principal.getName(), updateUserDto));
+    public ResponseEntity<UpdateUserDto> setInfoAboutAuthUser(@RequestBody UpdateUserDto updateUserDto, Principal principal) {
+
+        return ResponseEntity.ok(userService.setInfoAboutAuthUser(principal, updateUserDto));
     }
 
     @PatchMapping(path = "/me/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<?> setAvatar(@RequestPart("image") MultipartFile image, HttpServletRequest request) {
-        Principal principal = request.getUserPrincipal();
-        userService.setAvatar(principal.getName(), "Path");// надо доделать с файлом
+    public ResponseEntity<?> setAvatar(@RequestPart("image") MultipartFile image, Principal principal) {
+        userService.setAvatar(image, principal);// надо доделать с файлом
         return ResponseEntity.ok().build();
     }
 }

@@ -9,7 +9,7 @@ import ru.skypro.homework.model.Comment;
 import java.time.LocalDateTime;
 
 public interface CommentRepository extends JpaRepository<Comment, Integer> {
-    @Query(value = "SELECT e FROM Comment e WHERE e.ad_id LIKE %:adId%")
+    @Query(value = "SELECT e FROM comments e WHERE e.ad_id LIKE %:adId%")
     CommentsDto findAllByAd(@Param("adId") int adId);
 
     Comment findByCreatedAt(LocalDateTime createdAt);
