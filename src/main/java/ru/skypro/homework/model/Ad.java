@@ -4,9 +4,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
-@Table(name = "Ads")
 @Data
 @NoArgsConstructor
 public class Ad {
@@ -15,8 +15,16 @@ public class Ad {
     private int id;
     @ManyToOne
     private User user;
-    private String image;
+    @Lob
+    @Column(columnDefinition = "oid")
+    @Basic(fetch = FetchType.LAZY)
+    private byte [] image;
     private int price;
     private String title;
     private String description;
+    @OneToMany(mappedBy = "ad")
+    private List<Comment> commentList;
+
+
+
 }

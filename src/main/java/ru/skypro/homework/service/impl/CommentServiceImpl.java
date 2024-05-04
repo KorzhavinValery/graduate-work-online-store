@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
 import ru.skypro.homework.dto.CreateOrUpdateCommentDto;
+import ru.skypro.homework.exceptions.UserNotFoundException;
 import ru.skypro.homework.model.Ad;
 import ru.skypro.homework.model.Comment;
 import ru.skypro.homework.model.User;
@@ -16,6 +17,7 @@ import ru.skypro.homework.service.CommentService;
 import ru.skypro.homework.service.UserService;
 import ru.skypro.homework.service.map.CommentMap;
 
+import javax.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -49,16 +51,7 @@ public class CommentServiceImpl implements CommentService {
      */
     @Override
     public CommentDto postComment(int adId, CreateOrUpdateCommentDto comment, String userName) {
-        Comment newComment = new Comment();
-        User user = userRepository.findByName(userName);
-        Ad ad = adRepository.findById(adId).orElseThrow();
-        newComment.setAd(ad);
-        newComment.setUser(user);
-        LocalDateTime createdAt = LocalDateTime.now();
-        newComment.setCreatedAt(createdAt);
-        newComment.setText(comment.getText());
-        commentRepository.save(newComment);
-        return commentMap.mapCommentDto(commentRepository.save(newComment));
+       return commentMap.toDto(commentRepository.save(commentMap.dtoToEntity(comment, adId, getCurrentUser(userName).getId())));
     }
 
     /**
@@ -74,13 +67,19 @@ public class CommentServiceImpl implements CommentService {
     /**
      * Обновление комментария
      *
-     * @param id = id комментария
+     * @param commentId = id комментария
      * @return = CommentDto
      */
     @Override
-    public CommentDto patchComment(int id, CreateOrUpdateCommentDto commentDto) {
-        Comment comment = commentRepository.findById(id).orElseThrow();
+    public CommentDto patchComment(int adId, int commentId, CreateOrUpdateCommentDto commentDto, String userName) {
+        Comment comment = commentRepository.findById(commentId).orElseThrow(()-> new EntityNotFoundException("Комментарий не найден"));
         comment.setText(commentDto.getText());
-        return commentMap.mapCommentDto(commentRepository.save(comment));
+        comment.setCreatedAt(LocalDateTime.now());
+        comment.setUser(getCurrentUser(userName));
+        return commentMap.toDto(commentRepository.save(comment));
+    }
+    private User getCurrentUser(String userName){
+        return userRepository.findByUsername(userName).
+                orElseThrow(() -> new UserNotFoundException("User not found."));
     }
 }

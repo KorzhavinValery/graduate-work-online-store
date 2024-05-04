@@ -25,7 +25,7 @@ public class AdMap {
         AdDto adDto = new AdDto();
         adDto.setPk(ad.getId());
         adDto.setAuthor(ad.getUser().getId());
-        adDto.setImage(ad.getImage());
+        adDto.setImage("/ads/"+ad.getId()+"/image");
         adDto.setPrice(adDto.getPrice());
         adDto.setTitle(ad.getTitle());
         return adDto;
@@ -38,7 +38,7 @@ public class AdMap {
         adExtendedDto.setAuthorLastName(ad.getUser().getLastName());
         adExtendedDto.setDescription(ad.getDescription());
         adExtendedDto.setEmail(ad.getUser().getEmail());
-        adExtendedDto.setImage(ad.getImage());
+        adExtendedDto.setImage("/ads/"+ad.getId()+"/image");
         adExtendedDto.setPhone(ad.getUser().getPhone());
         adExtendedDto.setPrice(ad.getPrice());
         adExtendedDto.setTitle(ad.getTitle());

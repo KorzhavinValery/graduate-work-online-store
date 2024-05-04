@@ -29,9 +29,9 @@ public interface CommentService {
 
     /**
      * Обновление комментария
-     * @param id = id комментария
-     * @param text = текст комментария
+     * @param commentId = id комментария
+     * @param commentDto = текст комментария
      * @return = CommentDto
      */
-    CommentDto patchComment(int id, CreateOrUpdateCommentDto commentDto);
+    CommentDto patchComment(int adId, int commentId, CreateOrUpdateCommentDto commentDto, String userName);
 }
