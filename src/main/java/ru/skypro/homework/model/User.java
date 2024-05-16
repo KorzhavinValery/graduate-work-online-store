@@ -15,7 +15,6 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String email;
     private String username;
     @Column(name = "first_name")
     private String firstName;
@@ -27,7 +26,7 @@ public class User {
     @Lob
     @Column(columnDefinition = "oid")
     @Basic(fetch = FetchType.LAZY)
-    private byte [] image;
+    private byte[] image;
     private String password;
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
     private List<Ad> ads;

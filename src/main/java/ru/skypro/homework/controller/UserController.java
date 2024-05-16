@@ -10,7 +10,6 @@ import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.service.impl.UserServiceImpl;
 
-import javax.servlet.http.HttpServletRequest;
 import java.security.Principal;
 
 @RestController
@@ -19,6 +18,7 @@ import java.security.Principal;
 @AllArgsConstructor
 public class UserController {
     private UserServiceImpl userService;
+
     @PostMapping("set_password")
     public ResponseEntity<?> setPassword(@RequestBody NewPasswordDto newPassword, Principal principal) {
         userService.setPassword(newPassword, principal);
@@ -38,7 +38,17 @@ public class UserController {
 
     @PatchMapping(path = "/me/image", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<?> setAvatar(@RequestPart("image") MultipartFile image, Principal principal) {
-        userService.setAvatar(image, principal);// надо доделать с файлом
+        userService.setAvatar(image, principal);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping(value = "/me/image", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
+    public byte[] getImage(Principal principal) {
+        return userService.findByUsername(principal).getImage();
+    }
+
+    @GetMapping(value = "/{id}/image", produces = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_GIF_VALUE, "image/*"})
+    public byte[] getImage(@PathVariable("id") int id) {
+        return userService.findByUserId(id).getImage();
     }
 }

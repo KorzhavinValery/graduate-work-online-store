@@ -1,6 +1,6 @@
 package ru.skypro.homework.service.impl;
 
-import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.function.Supplier;
 
 @Service
-
+@Slf4j
 public class AdServiceImpl implements AdService {
     private final AdRepository adRepository;
-    private AdMap adMap;
-    private UserRepository userRepository;
+    private final AdMap adMap;
+    private final UserRepository userRepository;
 
     public AdServiceImpl(AdRepository adRepository, AdMap adMap, UserRepository userRepository) {
         this.adRepository = adRepository;
@@ -48,21 +48,22 @@ public class AdServiceImpl implements AdService {
 
     /**
      * Записывает в базу новое объявление
+     *
      * @param createOrUpdateAdDto информация о новом объявлении
-     * @param image часть запроса, содержащая картинку
-     * @param principal  принципал, чье имя используется для идентификации автора
+     * @param image               часть запроса, содержащая картинку
+     * @param principal           принципал, чье имя используется для идентификации автора
      * @return сохраненное объявление
      */
     @Override
     public AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile image, Principal principal) {
         Ad ad = adMap.toEntity(createOrUpdateAdDto, principal);
-       try {
-           ad.setImage(image.getBytes());
-       } catch (IOException e) {
-           throw new RuntimeException(e.getMessage());
-       }
-       Ad adAfterSave = adRepository.save(ad);
-       return adMap.mapAdDto(adAfterSave);
+        try {
+            ad.setImage(image.getBytes());
+        } catch (IOException e) {
+            log.info("Ошибка с записью изображения");
+        }
+        Ad adAfterSave = adRepository.save(ad);
+        return adMap.mapAdDto(adAfterSave);
     }
 
     /**
@@ -103,17 +104,18 @@ public class AdServiceImpl implements AdService {
 
     /**
      * Извлекает из базы объявления пользователя
+     *
      * @param principal принципал, чье имя используется для идентификации автора
      * @return список объявлений
      */
     @Transactional
     @Override
     public AdsDto getMyAds(Principal principal) {
-      String userName = principal.getName();
+        String userName = principal.getName();
         User user = userRepository.findByUsername(userName)
                 .orElseThrow(() -> new UserNotFoundException(userName));
         List<Ad> adList = user.getAds();
-        return  adMap.mapAdsDto(adList);
+        return adMap.mapAdsDto(adList);
     }
 
     /**
@@ -128,11 +130,16 @@ public class AdServiceImpl implements AdService {
         try {
             ad.setImage(image.getBytes());
         } catch (IOException e) {
-            throw  new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
         adRepository.save(ad);
     }
+
     private Supplier<EntityNotFoundException> excSuppl(int id) {
         return () -> new EntityNotFoundException("Ad with id " + id + " not found");
+    }
+
+    public byte[] getImage(int id) {
+        return adRepository.findById(id).orElseThrow().getImage();
     }
 }

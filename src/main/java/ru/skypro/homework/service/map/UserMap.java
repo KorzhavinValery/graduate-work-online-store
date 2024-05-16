@@ -5,12 +5,13 @@ import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.model.User;
+
 @Component
 public class UserMap {
     public UserDto mapUserDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(userDto.getId());
-        userDto.setEmail(user.getEmail());
+        userDto.setEmail(user.getUsername());
         userDto.setFirstName(user.getFirstName());
         userDto.setLastName(user.getLastName());
         userDto.setPhone(user.getPhone());
@@ -19,10 +20,11 @@ public class UserMap {
         return userDto;
     }
 
-    public void updateUser(User user, UpdateUserDto updateUserDto) {
+    public User updateUser(User user, UpdateUserDto updateUserDto) {
         user.setFirstName(updateUserDto.getFirstName());
         user.setLastName(updateUserDto.getLastName());
         user.setPhone(updateUserDto.getPhone());
+        return user;
     }
 
     public UpdateUserDto mapUpdateUserDto(User user) {
