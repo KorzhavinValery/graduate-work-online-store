@@ -11,7 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Ad {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     @ManyToOne
     private User user;
