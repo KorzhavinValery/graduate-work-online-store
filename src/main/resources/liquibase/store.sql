@@ -1,5 +1,5 @@
 -- liquibase formatted sql
---changeset alexander:create_user, ad, comments
+--changeset korzh:create_user, ad, comments
 DROP TABLE IF EXISTS comments;
 DROP TABLE IF EXISTS ad;
 DROP TABLE IF EXISTS public.user;
