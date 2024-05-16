@@ -1,5 +1,6 @@
 package ru.skypro.homework.service.map;
 
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import ru.skypro.homework.dto.CommentDto;
 import ru.skypro.homework.dto.CommentsDto;
@@ -14,8 +15,9 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
+import javax.persistence.Column;
 import javax.persistence.EntityNotFoundException;
-
+@Component
 public class CommentMap {
     private final UserRepository userRepository;
     private final AdRepository adRepository;

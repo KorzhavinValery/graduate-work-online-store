@@ -39,7 +39,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
 
     public CommentsDto getComments(int adId) {
-        return commentRepository.findAllByAd(adId);
+        return commentMap.toComments(commentRepository.findAllByAdId(adId));
     }
 
     /**
