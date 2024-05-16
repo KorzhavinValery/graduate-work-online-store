@@ -6,6 +6,8 @@ import ru.skypro.homework.dto.AdExtendedDto;
 import ru.skypro.homework.dto.AdsDto;
 import ru.skypro.homework.dto.CreateOrUpdateAdDto;
 
+import java.security.Principal;
+
 public interface AdService {
     /**
      * Получение всех объявлений
@@ -15,12 +17,12 @@ public interface AdService {
 
     /**
      * Добавляем новое объявление
-     * @param userName = имя авторизированного пользователя
      * @param createOrUpdateAdDto = экземпляр CreateOrUpdateAdDto
-     * @param pathImage = путь к файлу с изображением
+     * @param image = путь к файлу с изображением
+     * @param principal принципал, чье имя используется для идентификации автора
      * @return = экземпляр AdDto
      */
-    AdDto addAd(String userName, CreateOrUpdateAdDto createOrUpdateAdDto, String pathImage);
+    AdDto addAd(CreateOrUpdateAdDto createOrUpdateAdDto, MultipartFile image, Principal principal);
 
     /**
      * Получаем объявление по id
@@ -44,15 +46,15 @@ public interface AdService {
 
     /**
      * Получение объявлений авторизованного пользователя
-     * @param userName = имя авторизованного пользователя
-     * @return = получаем лист объявлений авторизованного пользователя
+     * @param principal принципал, чье имя используется для идентификации автора
      */
-    AdsDto getMyAds(String userName);
+    AdsDto getMyAds(Principal principal);
 
     /**
      * Обновление картинки объявления
      * @param id = id объявления
-     * @param pathImage = путь к file картинки
+     * @param image = путь к file картинки
      */
-    void patchImage(int id, String pathImage);
+
+    void patchImage(int id, MultipartFile image);
 }

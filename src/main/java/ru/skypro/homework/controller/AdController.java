@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.AdDto;
@@ -20,49 +21,49 @@ import java.security.Principal;
 @RestController
 @CrossOrigin(value = "http://localhost:3000")
 @RequestMapping("ads")
-@AllArgsConstructor
 public class AdController {
     private final AdServiceImpl adService;
+
+    public AdController(AdServiceImpl adService) {
+        this.adService = adService;
+    }
+
     @GetMapping
     public AdsDto getAllAds() {
         return adService.getAllAds();
     }
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)// надо доработать
-    public AdDto addAd(@RequestPart("properties") String jsonCreateOrUpdateAdDto,
-                       @RequestPart MultipartFile image ) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        CreateOrUpdateAdDto crOrUpdAdDto;
-        try {
-            crOrUpdAdDto = objectMapper.readValue(jsonCreateOrUpdateAdDto, new TypeReference<CreateOrUpdateAdDto>(){});
-        } catch( JsonProcessingException e) {
-            throw  new RuntimeException();
-        }//пока что так, первый параметр - объект типа crOrUpdAdDto,
-        // Postman и Swagger возвращают - status 415 Unsupported Media Type, строка приходит без ошибок
-
-        return new AdDto();
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public AdDto addAd(@RequestPart("properties") CreateOrUpdateAdDto createOrUpdateAdDto,
+                       //если первый параметр - объект типа CreateOrUpdateAdDto,
+                       //то Swagger не справится в такой посылкой, он пошлет строку.
+                       //В Postman надо, используя 3 точки, открыть колонку ТипКонтента и задать там application/json
+                       @RequestPart MultipartFile image,
+                       Principal principal) {
+        return adService.addAd(createOrUpdateAdDto, image, principal);
     }
     @GetMapping("{id}")
     public AdExtendedDto getAdExtended(@PathVariable("id") int id) {
         return adService.getAdExtended(id);
     }
     @DeleteMapping("{id}")
-    public ResponseEntity<String> DeleteAd(@PathVariable("id") int id) {
+    @PreAuthorize("hasRole('Admin') or @CheckRoleService.GetUsernameByAd(#id) == principal.username")
+    public ResponseEntity<String> DeleteAd(@PathVariable int id) {
         adService.DeleteAd(id);
         return ResponseEntity.ok().build();
     }
     @PatchMapping("{id}")
-    public AdDto updateAd(@PathVariable("id") int id, @RequestBody CreateOrUpdateAdDto createOrUpdateAdDto) {
+    @PreAuthorize("hasRole('Admin') or @CheckRoleService.GetUserNameByAd(#id) == principal.username")
+    public AdDto updateAd(@PathVariable int id, @RequestBody CreateOrUpdateAdDto createOrUpdateAdDto) {
         return adService.updateAd(id, createOrUpdateAdDto);
     }
     @GetMapping("me")
-    public AdsDto getMyAds(HttpServletRequest request) {
-        Principal principal = request.getUserPrincipal();
-        return adService.getMyAds(principal.getName());
+    public AdsDto getMyAds(Principal principal) {
+        return adService.getMyAds(principal);
     }
     @PatchMapping(value = "{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public byte[] patchImage(@PathVariable("id") int id, @RequestBody MultipartFile image) {
-        return new byte[0];
+    @PreAuthorize("hasRole('Admin') or @CheckRoleService.GetUserNameByAd(#id) == principal.username")
+    public void patchImage(@PathVariable int id, @RequestBody MultipartFile image) {
+        adService.patchImage(id, image);
     }
-// с файлами наверное надо создать для работы отдельный клас
 }

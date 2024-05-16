@@ -32,7 +32,7 @@ public class CommentController {
     }
 
     @DeleteMapping("/{adId}/comments/{commentId}")
-    @PreAuthorize("hasRole('ADMIN') or @CheckRoleService.getUsernameByComment(#commentId) == principal.username")
+    @PreAuthorize("hasRole('ADMIN') or @CheckRoleService.getUserNameByComment(#commentId) == principal.username")
     public ResponseEntity<?> deleteComment(@PathVariable Integer adId,
                                            @PathVariable Integer commentId) {
         commentService.deleteComment(commentId);
@@ -40,7 +40,7 @@ public class CommentController {
     }
 
     @PatchMapping("/{adId}/comments/{commentId}")
-    @PreAuthorize("hasRole('ADMIN') or @CheckRoleService.getUsernameByComment(#commentId) == principal.username")
+    @PreAuthorize("hasRole('ADMIN') or @CheckRoleService.getUserNameByComment(#commentId) == principal.username")
     public ResponseEntity<CommentDto> patchComment(@PathVariable Integer adId,
                                                    @PathVariable Integer commentId,
                                                    @RequestBody CreateOrUpdateCommentDto commentDto,
