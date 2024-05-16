@@ -66,8 +66,10 @@ public class UserServiceImpl implements UserService {
     public UpdateUserDto setInfoAboutAuthUser(Principal principal, UpdateUserDto updateUserDto) {
         String userName = principal.getName();
         User user = userRepository.findByUsername(userName).orElseThrow(() -> new UserNotFoundException(userName));;
-        userMap.updateUser(user, updateUserDto);
-        return userMap.mapUpdateUserDto(userRepository.save(user));
+        user.setFirstName(updateUserDto.getFirstName());
+        user.setLastName(updateUserDto.getLastName());
+        user.setPhone(updateUserDto.getPhone());
+        return updateUserDto;
     }
 
     /**
