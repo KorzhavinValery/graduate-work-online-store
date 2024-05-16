@@ -1,10 +1,11 @@
 package ru.skypro.homework.service.map;
 
+import org.springframework.stereotype.Component;
 import ru.skypro.homework.dto.Register;
 import ru.skypro.homework.dto.UpdateUserDto;
 import ru.skypro.homework.dto.UserDto;
 import ru.skypro.homework.model.User;
-
+@Component
 public class UserMap {
     public UserDto mapUserDto(User user) {
         UserDto userDto = new UserDto();
