@@ -1,6 +1,8 @@
 package ru.skypro.homework.service.impl;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import ru.skypro.homework.dto.NewPasswordDto;
@@ -12,17 +14,18 @@ import ru.skypro.homework.model.User;
 import ru.skypro.homework.repository.UserRepository;
 import ru.skypro.homework.service.UserService;
 import ru.skypro.homework.service.map.UserMap;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.IOException;
 import java.security.Principal;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private UserMap userMap;
     private final PasswordEncoder encoder;
+
     /**
      * Изменить пароль
      *
@@ -30,9 +33,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public void setPassword(NewPasswordDto newPasswordDto, Principal principal) {
-        String username = principal.getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException(username));
+        User user = findByUsername(principal);
         if (!encoder.matches(newPasswordDto.getCurrentPassword(), user.getPassword())) {
             throw new PasswordsNotEqualsException();
         }
@@ -49,8 +50,7 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public UserDto getInfoAboutAuthUser(Principal principal) {
-        String userName = principal.getName();
-        User user = userRepository.findByUsername(userName).orElseThrow(() -> new UserNotFoundException(userName));
+        User user = findByUsername(principal);
         return userMap.mapUserDto(user);
 
     }
@@ -59,35 +59,51 @@ public class UserServiceImpl implements UserService {
      * Обновление информации об авторизованном пользователе
      *
      * @param principal = интерфейс для получения username пользователя
-     * @param updateUserDto
-     * @return
+     * @param updateUserDto = данные для изменения
+     * @return = измененного User
      */
     @Override
     public UpdateUserDto setInfoAboutAuthUser(Principal principal, UpdateUserDto updateUserDto) {
-        String userName = principal.getName();
-        User user = userRepository.findByUsername(userName).orElseThrow(() -> new UserNotFoundException(userName));;
-        user.setFirstName(updateUserDto.getFirstName());
-        user.setLastName(updateUserDto.getLastName());
-        user.setPhone(updateUserDto.getPhone());
-        return updateUserDto;
+        User user = findByUsername(principal);
+        User resul = userMap.updateUser(user, updateUserDto);
+        return userMap.mapUpdateUserDto(userRepository.save(resul));
     }
 
     /**
      * Обновление аватара авторизованного пользователя
+     *
      * @param principal = интерфейс для получения username пользователя
-     * @param image = путь к файлу картинки
-     * @throws UserNotFoundException выбрасывается, если пользователь не найден в таблице user.
+     * @param image     = путь к файлу картинки
      * @throws IOException выбрасывается, если возникают проблемы при получении картинки.
      */
     @Override
     public void setAvatar(MultipartFile image, Principal principal) {
-        String userName = principal.getName();
-        User user = userRepository.findByUsername(userName).orElseThrow(() -> new UserNotFoundException(userName));
+        User user = findByUsername(principal);
         try {
             user.setImage(image.getBytes());
         } catch (IOException e) {
-            throw new RuntimeException(e.getMessage());
+            log.info("Ошибка с записью изображения");
         }
         userRepository.save(user);
+    }
+
+    /**
+     * Метод для получения User по имени
+     * @param principal = получаем Principal
+     * @return = User
+     * @throws UserNotFoundException выбрасывается, если пользователь не найден в таблице user.
+     */
+    public User findByUsername(Principal principal) {
+        String userName = principal.getName();
+        return userRepository.findByUsername(userName).orElseThrow(() -> new UserNotFoundException(userName));
+    }
+
+    /**
+     * Метод для получения User из БД по id
+     * @param id = id User
+     * @return = User
+     */
+    public User findByUserId(int id) {
+        return userRepository.findById(id).orElseThrow();
     }
 }

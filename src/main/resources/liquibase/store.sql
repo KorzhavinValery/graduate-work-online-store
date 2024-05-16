@@ -11,9 +11,8 @@ CREATE TABLE public.user
     first_name     VARCHAR(16)     NOT NULL,
     last_name      VARCHAR(16),
     phone          VARCHAR(16),
-    email          VARCHAR(16),
     role           VARCHAR(16)        NOT NULL,
-    image          OID
+    image_id          INTEGER
 );
 
 

@@ -12,7 +12,6 @@ import ru.skypro.homework.model.User;
 import ru.skypro.homework.repository.UserRepository;
 
 import java.security.Principal;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,11 +23,14 @@ public class AdMap {
 
     /**
      * Преобразует список объявлений
+     *
      * @param adList список объектов класса
      * @return список объявлений
      */
     public AdsDto mapAdsDto(List<Ad> adList) {
-        if (adList==null) {adList = Collections.EMPTY_LIST;} // для тестов
+        if (adList == null) {
+            adList = Collections.EMPTY_LIST;
+        } // для тестов
         AdsDto adsDto = new AdsDto();
         adsDto.setCount(adList.size());
         adsDto.setResults(adList.stream().map(this::mapAdDto).collect(Collectors.toList()));
@@ -36,23 +38,25 @@ public class AdMap {
     }
 
     /**
-     *Преобразует объект класса Ad
+     * Преобразует объект класса Ad
+     *
      * @param ad объект класса
      * @return информация об объявлении
      */
     public AdDto mapAdDto(Ad ad) {
-        if (ad==null) return null;
+        if (ad == null) return null;
         AdDto adDto = new AdDto();
         adDto.setPk(ad.getId());
         adDto.setAuthor(ad.getUser().getId());
-        adDto.setImage("/ads/"+ad.getId()+"/image");
-        adDto.setPrice(adDto.getPrice());
+        adDto.setImage("/ads/" + ad.getId() + "/image");
+        adDto.setPrice(ad.getPrice());
         adDto.setTitle(ad.getTitle());
         return adDto;
     }
 
     /**
      * Преобразует объект класса Ad с подробной информацией об авторе
+     *
      * @param ad объект класса Ad
      * @return информация об объявлении в расширенном выходном формате
      */
@@ -62,8 +66,8 @@ public class AdMap {
         adExtendedDto.setAuthorFirstName(ad.getUser().getFirstName());
         adExtendedDto.setAuthorLastName(ad.getUser().getLastName());
         adExtendedDto.setDescription(ad.getDescription());
-        adExtendedDto.setEmail(ad.getUser().getEmail());
-        adExtendedDto.setImage("/ads/"+ad.getId()+"/image");
+        adExtendedDto.setEmail(ad.getUser().getUsername());
+        adExtendedDto.setImage("/ads/" + ad.getId() + "/image");
         adExtendedDto.setPhone(ad.getUser().getPhone());
         adExtendedDto.setPrice(ad.getPrice());
         adExtendedDto.setTitle(ad.getTitle());
@@ -71,9 +75,10 @@ public class AdMap {
     }
 
     /**
-     *Преобразует информацию об объявлении в объект класса
+     * Преобразует информацию об объявлении в объект класса
+     *
      * @param createOrUpdateAdDto информация об объявлении во входном формате
-     * @param principal принципал, чье имя используется для идентификации автора
+     * @param principal           принципал, чье имя используется для идентификации автора
      * @return объект класса
      */
     public Ad toEntity(CreateOrUpdateAdDto createOrUpdateAdDto, Principal principal) {
