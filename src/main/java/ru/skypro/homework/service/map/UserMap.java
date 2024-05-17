@@ -8,6 +8,11 @@ import ru.skypro.homework.model.User;
 
 @Component
 public class UserMap {
+    /**
+     * Метод преобразует объект класса User в Dto UserDto
+     * @param user объект класса User
+     * @return Dto UserDto
+     */
     public UserDto mapUserDto(User user) {
         UserDto userDto = new UserDto();
         userDto.setId(userDto.getId());
@@ -35,6 +40,11 @@ public class UserMap {
         return updateUserDto;
     }
 
+    /**
+     * Метод преобразует Dto Register в объект класса User.
+     * @param register dto Register
+     * @return объект класса User
+     */
     public User registerToUser(Register register) {
         User user = new User();
         user.setUsername(register.getUsername());

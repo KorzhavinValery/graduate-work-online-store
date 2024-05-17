@@ -120,7 +120,7 @@ public class AdControllerTest {
         when(adRepository.findById(12)).thenReturn(Optional.of(ad));
         mockMvc.perform(delete("/ads/12")
         ).andExpect(status().isOk());
-
+        //Проверка, что в adRepository.deleteById
         ArgumentCaptor<Integer> intCaptor = ArgumentCaptor.forClass(Integer.class);
         verify(adRepository, times(1)).deleteById(intCaptor.capture());
         Integer fact = intCaptor.getValue();
@@ -130,22 +130,27 @@ public class AdControllerTest {
     @Test
     @WithMockUser(username = "user", roles = "ADMIN")
     public void patchAdTest() throws Exception {
+        //тело запроса с параметром
         CreateOrUpdateAdDto createAd = new CreateOrUpdateAdDto();
         createAd.setTitle("MyAd");
         createAd.setPrice(111);
-
+        //заглушка для adRepository.findById
         Ad adForRepository = new Ad();
         adForRepository.setId(22);
         adForRepository.setTitle("OldTitle");
         when(adRepository.findById(11)).thenReturn(Optional.of(adForRepository));
-
+        //заглушка для adRepository.save, все id разные,
+        // чтобы подтвердилась передача  информации по этапам
         Ad adAfterSave = new Ad();
         adAfterSave.setId(33);
         adAfterSave.setUser(new User());
         adAfterSave.getUser().setId(32);
         adAfterSave.setTitle("NewTitle");
+        //Через any(), т.к. через ad сравнение не срабатывает
         when(adRepository.save(any())).thenReturn(adAfterSave);
+        //Ожидаемый результат
         AdDto expectedDto = adMap.mapAdDto(adAfterSave);
+
         mockMvc.perform(patch("/ads/11")
                         .content(objectMapper.writeValueAsString(createAd))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -155,11 +160,12 @@ public class AdControllerTest {
                     AdDto actualDto = objectMapper.readValue(content, AdDto.class);
                     assertThat(actualDto).isEqualTo(expectedDto);
                 });
+        //Проверка, что в adRepository.save
         ArgumentCaptor<Ad> adCaptor = ArgumentCaptor.forClass(Ad.class);
         verify(adRepository, times(1)).save(adCaptor.capture());
 
         Ad adArgOfSave = adCaptor.getValue();
-
+        //Проверка, что id на входе в save = взятому из репозитория, как цена и заголовок
         assertEquals(adForRepository.getId(), adArgOfSave.getId());
         assertEquals(createAd.getPrice(), adArgOfSave.getPrice());
         assertEquals(createAd.getTitle(), adArgOfSave.getTitle());
@@ -169,10 +175,11 @@ public class AdControllerTest {
     @Test
     @WithMockUser(username = "user")
     public void getMyAdsTest() throws Exception {
+        //заглушка для userRepository.findByUsername
         User user = new User();
         user.setId(1);
         user.setUsername("user");
-
+        //юзер содержит коллекцию ad, которые должны вернуться
         Ad ad = new Ad();
         ad.setId(22);
         ad.setUser(user);
@@ -193,6 +200,7 @@ public class AdControllerTest {
     @Test
     @WithMockUser(username = "user")
     public void getAdExtendedTest() throws Exception {
+        //заглушка для adRepository.findById
         User user = new User();
         user.setId(1);
         user.setUsername("user");
@@ -206,6 +214,7 @@ public class AdControllerTest {
                 .andExpect(result -> {
                     String content = result.getResponse().getContentAsString();
                     AdExtendedDto actualExtDto = objectMapper.readValue(content, AdExtendedDto.class);
+                    //Проверка, что вернулось объявление, которым замокали репозиторий
                     assertThat(actualExtDto).isEqualTo(adMap.mapAdExtendedDto(ad));
                 });
     }
